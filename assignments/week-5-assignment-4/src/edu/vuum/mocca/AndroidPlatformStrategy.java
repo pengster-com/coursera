@@ -2,6 +2,7 @@ package edu.vuum.mocca;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.widget.TextView;
@@ -47,6 +48,7 @@ public class AndroidPlatformStrategy extends PlatformStrategy
     {
         /** Reset the CountDownLatch. */
         // TODO - You fill in here.
+        mLatch = new CountDownLatch(2);
     }
 
     /** Print the outputString to the display. */
@@ -57,18 +59,28 @@ public class AndroidPlatformStrategy extends PlatformStrategy
          * and appends the outputString to a TextView. 
          */
         // TODO - You fill in here.
+        mActivity.get().runOnUiThread(new Runnable() {
+            public void run() { 
+                mTextViewOutput.append(outputString);
+                mTextViewOutput.append("\n");
+            }});
     }
 
     /** Indicate that a game thread has finished running. */
     public void done()
     {	
         // TODO - You fill in here.
+        mLatch.countDown();
     }
 
     /** Barrier that waits for all the game threads to finish. */
     public void awaitDone()
     {
         // TODO - You fill in here.
+       try {
+            mLatch.await();
+        } catch(java.lang.InterruptedException e) {
+        }
     }
 
     /** Returns the platform name in a String. */
